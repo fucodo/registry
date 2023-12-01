@@ -6,6 +6,7 @@ namespace fucodo\registry\Domain\Repository;
  */
 
 use fucodo\registry\Domain\Model\RegistryEntry;
+use Monolog\Registry;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Persistence\Repository;
 
@@ -14,7 +15,7 @@ use Neos\Flow\Persistence\Repository;
  */
 class RegistryEntryRepository extends Repository
 {
-    public function get(string  $namespace, string $name): ?RegistryEntry
+    public function get(string  $namespace, string $name, $fallback = null): ?RegistryEntry
     {
         $query = $this->createQuery();
         $result = $query->matching(
@@ -26,7 +27,43 @@ class RegistryEntryRepository extends Repository
         if ($result instanceof RegistryEntry) {
             return $result;
         }
-        return null;
+
+        if ($fallback === null) {
+            return null;
+        }
+        $registryEntry = new RegistryEntry();
+        $registryEntry->setValue($fallback);
+        $registryEntry->setName($name);
+        $registryEntry->setNamespace($namespace);
+
+        return $registryEntry;
+    }
+
+    /**
+     * @param string $namespace
+     * @param string $name
+     * @param mixed $fallback
+     * @return object|void
+     */
+    public function getValue(string $namespace, string $name, $fallback = null)
+    {
+        $returnValue = $this->get($namespace, $name, $fallback);
+        if ($returnValue instanceof RegistryEntry) {
+            return $returnValue->getValue();
+        }
+        return $fallback;
+    }
+
+    public function set(string  $namespace, string $name, $value)
+    {
+
+        $registryEntry = $this->get(
+            $namespace,
+            $name,
+            (new RegistryEntry())->setName($name)->setNamespace($namespace)
+        );
+        $registryEntry->setValue($value);
+        $this->update($registryEntry);
     }
 
     public function add($object)
