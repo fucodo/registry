@@ -63,9 +63,10 @@ class RegistryEntry
         return $this->namespace;
     }
 
-    public function setNamespace(string $namespace): void
+    public function setNamespace(string $namespace): RegistryEntry
     {
         $this->namespace = $namespace;
+        return $this;
     }
 
     public function getName(): string
@@ -73,9 +74,10 @@ class RegistryEntry
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): RegistryEntry
     {
         $this->name = $name;
+        return $this;
     }
 
     public function getValue()
@@ -83,29 +85,29 @@ class RegistryEntry
         return $this->value;
     }
 
-    public function setValue($value): void
+    public function setValue($value): RegistryEntry
     {
         $this->value = $value;
         $this->type = 'string';
         if (is_object($value)) {
             $this->type = 'object';
-            return;
+            return $this;
         }
         if (is_int($value)) {
             $this->type = 'int';
-            return;
+            return $this;
         }
         if (is_float($value)) {
             $this->type = 'float';
-            return;
+            return $this;
         }
         if (is_string($value)) {
             $this->type = 'string';
-            return;
+            return $this;
         }
         if (is_null($value)) {
             $this->type = 'null';
-            return;
+            return $this;
         }
     }
 
@@ -114,9 +116,10 @@ class RegistryEntry
         return $this->type;
     }
 
-    public function setType(string $type): void
+    public function setType(string $type): RegistryEntry
     {
         $this->type = $type;
+        return $this;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
@@ -124,9 +127,10 @@ class RegistryEntry
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): void
+    public function setCreatedAt(\DateTimeImmutable $createdAt): RegistryEntry
     {
         $this->createdAt = $createdAt;
+        return $this;
     }
 
     public function getUpdatedAt(): \DateTimeImmutable
@@ -134,8 +138,9 @@ class RegistryEntry
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $lastUpdatedAt): void
+    public function setUpdatedAt(\DateTimeImmutable $lastUpdatedAt): RegistryEntry
     {
         $this->updatedAt = $lastUpdatedAt;
+        return $this;
     }
 }
