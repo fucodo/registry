@@ -115,6 +115,68 @@ This is an example of how to list things you need to use the software and how to
 
 Currently you may directly use the repository, we will add a service.
 
+```php
+<?php
+namespace Vendor\Project\Controller;
+
+/*
+ * This file is part of the SBS.LaPo.Helparea package.
+ */
+
+use fucodo\registry\Domain\Repository\RegistryEntryRepository;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Mvc\Controller\ActionController;
+use Vendor\Project\Domain\Model\HelpMessage;
+
+class EditorController extends ActionController
+{
+    /**
+     * @Flow\Inject
+     * @var RegistryEntryRepository
+     */
+    protected $registry;
+
+    /**
+     * @return void
+     */
+    public function indexAction()
+    {
+        $this->view->assign('helpMessage', $this->registry->getValue('Vendor.Project', 'HelpMessage', new HelpMessage()));
+    }
+}
+```
+
+The given example uses `Neos.Flow` Dependency Injection to include the registry repository.
+
+Then the `getValue` method is called with the namespace `Vendor.Project` and the name `Helpmessage`.
+As the registry can also store objects, we use serialize internally in doctrine.
+
+To set the value you can use the `setValue` method.
+
+```
+$this->registry->set('Vendor.Project', 'HelpMessage', $helpMessage);
+```
+
+The object `\Vendor\Project\Domain\Model\HelpMessage` is just a Data Transfer Object in this example,
+to combine several properties in a single object.
+
+Internally the registry also provides additional information regarding the registry entry.
+
+```
+createdAt - a DateTimeImmutable representing the creation date of the entry
+updatedAt - a DateTimeImmutable representing the last update date of the entry
+type      - a string representing the datatype in the database
+```
+
+The package also provides some cli commands:
+
+```
+  ./flow registry:list                            
+  ./flow registry:set
+```
+
+Please use the `./flow help` command to get the detailed description of the commands.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -122,8 +184,8 @@ Currently you may directly use the repository, we will add a service.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Repo and Database access
-- [ ] CLI inspector
+- [x] Repo and Database access
+- [x] CLI inspector
 - [ ] Abstracted Service
 
 See the [open issues](https://github.com/fucodo/registry/issues) for a full list of proposed features (and known issues).
