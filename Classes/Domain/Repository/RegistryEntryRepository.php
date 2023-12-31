@@ -66,21 +66,26 @@ class RegistryEntryRepository extends Repository
         $this->update($registryEntry);
     }
 
-    public function add($object)
+    public function add($object): void
     {
         $existingObject = $this->get($object->getNamespace(), $object->getName());
         if ($existingObject !== null) {
             $existingObject->setValue($object->getValue());
+            $this->persistenceManager->allowObject($existingObject);
             $this->update($existingObject);
             return;
         }
+        $this->persistenceManager->allowObject($object);
         parent::add($object);
     }
 
-    public function update($object) {
+    public function update($object): void
+    {
         if (!$this->get($object->getNamespace(), $object->getName())) {
+            $this->persistenceManager->allowObject($object);
             parent::add($object);
         }
+        $this->persistenceManager->allowObject($object);
         parent::update($object);
     }
 }
