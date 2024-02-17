@@ -7,7 +7,7 @@ use setasign\Fpdi\PdfParser\Type\PdfIndirectObjectReference;
 
 /**
  * @Flow\Entity
- * @ORM\Table(uniqueConstraints=@ORM\UniqueConstraint(columns={"namespace", "name"}), indexes=@ORM\Index(columns={"namespace", "name"}))
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(columns={"namespace", "name"})}, indexes={@ORM\Index(columns={"namespace", "name"})})
  */
 class RegistryEntry
 {
