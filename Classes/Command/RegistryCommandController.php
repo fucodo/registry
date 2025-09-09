@@ -25,7 +25,7 @@ class RegistryCommandController extends CommandController
      * @param string|null $namespace
      * @return void
      */
-    public function listCommand(string $namespace = null)
+    public function listCommand(?string $namespace = null)
     {
         if ($namespace !== null) {
             $entries = $this->registry->findByNamespace($namespace);
