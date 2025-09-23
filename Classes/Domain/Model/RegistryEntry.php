@@ -7,10 +7,24 @@ use setasign\Fpdi\PdfParser\Type\PdfIndirectObjectReference;
 
 /**
  * @Flow\Entity
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(columns={"namespace", "name"})}, indexes={@ORM\Index(columns={"namespace", "name"})})
+ * @ORM\Table(
+ *     uniqueConstraints={
+ *       @ORM\UniqueConstraint(columns={"account", "namespace", "name"})
+ *     },
+ *     indexes={
+ *      @ORM\Index(columns={"namespace", "name"}),
+ *      @ORM\Index(columns={"account", "namespace", "name"})
+ *     }
+ * )
  */
 class RegistryEntry
 {
+    /**
+     * @ORM\Column(nullable=true)
+     * @var string|null
+     */
+    protected ?string $account = null;
+
     /**
      * @var string
      */
@@ -56,6 +70,17 @@ class RegistryEntry
     public function preUpdate()
     {
         $this->updatedAt= new \DateTimeImmutable();
+    }
+
+    public function getAccount(): ?string
+    {
+        return $this->account;
+    }
+
+    public function setAccount(?string $account): RegistryEntry
+    {
+        $this->account = $account;
+        return $this;
     }
 
     public function getNamespace(): string

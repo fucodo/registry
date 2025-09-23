@@ -15,11 +15,33 @@ use Neos\Flow\Persistence\Repository;
  */
 class RegistryEntryRepository extends Repository
 {
+    /**
+     * @Flow\Inject
+     * @var \Neos\Flow\Security\Context
+     */
+    protected $securityContext;
+
     public function get(string  $namespace, string $name, $fallback = null): ?RegistryEntry
+    {
+        return $this->getForAccount(null, $namespace, $name, $fallback);
+    }
+
+    public function getForCurrentAccount(string  $namespace, string $name, $fallback = null): ?RegistryEntry
+    {
+        $account = $this->securityContext->getAccount();
+        if ($account === null) {
+            return $fallback;
+        }
+        return $this->getForAccount($account->getAccountIdentifier(), $namespace, $name, $fallback);
+
+    }
+
+    public function getForAccount(?string $account, string $namespace, string $name, $fallback = null): ?RegistryEntry
     {
         $query = $this->createQuery();
         $result = $query->matching(
             $query->logicalAnd(
+                $query->equals('account', $account),
                 $query->equals('namespace', $namespace),
                 $query->equals('name', $name)
             )
@@ -35,6 +57,7 @@ class RegistryEntryRepository extends Repository
         $registryEntry->setValue($fallback);
         $registryEntry->setName($name);
         $registryEntry->setNamespace($namespace);
+        $registryEntry->setAccount($account);
 
         return $registryEntry;
     }
@@ -54,7 +77,22 @@ class RegistryEntryRepository extends Repository
         return $fallback;
     }
 
-    public function set(string  $namespace, string $name, $value)
+    /**
+     * @param string $namespace
+     * @param string $name
+     * @param mixed $fallback
+     * @return object|void
+     */
+    public function getValueForCurrentAccount(string $namespace, string $name, $fallback = null)
+    {
+        $returnValue = $this->getForCurrentAccount($namespace, $name, $fallback);
+        if ($returnValue instanceof RegistryEntry) {
+            return $returnValue->getValue();
+        }
+        return $fallback;
+    }
+
+    public function set(string  $namespace, string $name, $value): void
     {
 
         $registryEntry = $this->get(
@@ -66,9 +104,34 @@ class RegistryEntryRepository extends Repository
         $this->update($registryEntry);
     }
 
+    public function setForCurrentAccount(string  $namespace, string $name, $value): void
+    {
+        $account = $this->securityContext->getAccount();
+        if ($account === null) {
+            return;
+        }
+
+        $registryEntry = $this->getForCurrentAccount(
+            $namespace,
+            $name,
+            (new RegistryEntry())->setName($name)->setNamespace($namespace)->setAccount($account->getAccountIdentifier())
+        );
+
+        $registryEntry->setValue($value);
+
+        if($this->persistenceManager->isNewObject($registryEntry)) {
+            $this->add($registryEntry);
+        } else {
+            $this->update($registryEntry);
+        }
+    }
+
     public function add($object): void
     {
-        $existingObject = $this->get($object->getNamespace(), $object->getName());
+        if ($object instanceof RegistryEntry === false) {
+            throw new \InvalidArgumentException('The given object is not a RegistryEntry', 1618181818);
+        }
+        $existingObject = $this->getForAccount($object->getAccount(), $object->getNamespace(), $object->getName());
         if ($existingObject !== null) {
             $existingObject->setValue($object->getValue());
             $this->persistenceManager->allowObject($existingObject);
@@ -81,7 +144,10 @@ class RegistryEntryRepository extends Repository
 
     public function update($object): void
     {
-        if (!$this->get($object->getNamespace(), $object->getName())) {
+        if ($object instanceof RegistryEntry === false) {
+            throw new \InvalidArgumentException('The given object is not a RegistryEntry', 1618181818);
+        }
+        if (!$this->getForAccount($object->getAccount(), $object->getNamespace(), $object->getName())) {
             $this->persistenceManager->allowObject($object);
             parent::add($object);
         }
