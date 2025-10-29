@@ -30,9 +30,21 @@ class RegistryEntryRepository extends Repository
     {
         $account = $this->securityContext->getAccount();
         if ($account === null) {
-            return $fallback;
+            if ($fallback instanceof RegistryEntry) {
+                return $fallback;
+            }
+            $registryEntry = new RegistryEntry();
+            $registryEntry->setValue($fallback);
+            $registryEntry->setName($name);
+            $registryEntry->setNamespace($namespace);
+            $registryEntry->setAccount($account);
+            return $registryEntry;
         }
-        return $this->getForAccount($account->getAccountIdentifier(), $namespace, $name, $fallback);
+        $entry = $this->getForAccount($account->getAccountIdentifier(), $namespace, $name, $fallback);
+        if ($entry instanceof RegistryEntry) {
+            return $entry;
+        }
+        return null;
 
     }
 
