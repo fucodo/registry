@@ -6,9 +6,11 @@
 #     defaults:
 #       namespace:
 #         key:
+#           default:
 #     defaultsForAccounts:
 #       namespace:
 #         key:
+#           default:
 
 fucodo:
   registry:
