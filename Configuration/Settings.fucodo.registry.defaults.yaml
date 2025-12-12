@@ -1,0 +1,16 @@
+# add defaults here with the namespace key and then the actual key
+# only comes in effect, when no value and no fallback are given
+#
+# fucodo:
+#   registry:
+#     defaults:
+#       namespace:
+#         key:
+#     defaultsForAccounts:
+#       namespace:
+#         key:
+
+fucodo:
+  registry:
+    defaults: []
+    defaultsForAccounts: []

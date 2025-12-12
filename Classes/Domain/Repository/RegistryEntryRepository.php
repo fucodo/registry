@@ -21,6 +21,18 @@ class RegistryEntryRepository extends Repository
      */
     protected $securityContext;
 
+    /**
+     * @Flow\InjectConfiguration(package="fucodo.registry", path="defaults")
+     * @var array
+     */
+    protected array $defaults = [];
+
+    /**
+     * @Flow\InjectConfiguration(package="fucodo.registry", path="defaultsForAccounts")
+     * @var array
+     */
+    protected array $defaultsForAccounts = [];
+
     public function get(string  $namespace, string $name, $fallback = null): ?RegistryEntry
     {
         return $this->getForAccount(null, $namespace, $name, $fallback);
@@ -63,7 +75,7 @@ class RegistryEntryRepository extends Repository
         }
 
         if ($fallback === null) {
-            return null;
+            return $this->getDefaultFromSettings($account, $namespace, $name);
         }
         $registryEntry = new RegistryEntry();
         $registryEntry->setValue($fallback);
@@ -72,6 +84,21 @@ class RegistryEntryRepository extends Repository
         $registryEntry->setAccount($account);
 
         return $registryEntry;
+    }
+
+    public function getDefaultFromSettings(?string $account, string $namespace, string $name): ?RegistryEntry
+    {
+        $source = $this->defaultsForAccounts;
+        if ($account === null) {
+            $source = $this->defaults;
+        }
+
+        if (isset($source[$name][$name])) {
+            $r = new RegistryEntry();
+            $r->setValue($source[$name][$name]);
+            return $r;
+        }
+        return null;
     }
 
     /**
