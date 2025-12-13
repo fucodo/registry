@@ -10,6 +10,9 @@
             "fucodo\\registry\\": "Classes/"
         }
     },
+    "suggest": {
+        "fucodo/registry-editor": "*"
+    },
     "extra": {
         "neos": {
             "package-key": "fucodo.registry"
