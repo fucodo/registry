@@ -26,14 +26,14 @@ class RegistryEntry
     protected ?string $account = null;
 
     /**
-     * @var string
+     * @var ?string
      */
-    protected string $namespace;
+    protected ?string $namespace = null;
 
     /**
      * @var string
      */
-    protected string $name;
+    protected string $name = '';
 
     /**
      * @ORM\Column(type="object", nullable=true)
@@ -83,12 +83,12 @@ class RegistryEntry
         return $this;
     }
 
-    public function getNamespace(): string
+    public function getNamespace(): ?string
     {
         return $this->namespace;
     }
 
-    public function setNamespace(string $namespace): RegistryEntry
+    public function setNamespace(?string $namespace): RegistryEntry
     {
         $this->namespace = $namespace;
         return $this;

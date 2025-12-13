@@ -95,7 +95,9 @@ class RegistryEntryRepository extends Repository
 
         if (isset($source[$namespace][$name])) {
             $r = new RegistryEntry();
-            $r->setValue($source[$namespace][$name]['default']);
+            $r->setName($name)
+                ->setNamespace($namespace)
+                ->setValue($source[$namespace][$name]['default']);
             return $r;
         }
         return null;
@@ -140,7 +142,7 @@ class RegistryEntryRepository extends Repository
             (new RegistryEntry())->setName($name)->setNamespace($namespace)
         );
         $registryEntry->setValue($value);
-        $this->update($registryEntry);
+        $this->add($registryEntry);
     }
 
     public function setForCurrentAccount(string  $namespace, string $name, $value): void
@@ -170,15 +172,37 @@ class RegistryEntryRepository extends Repository
         if ($object instanceof RegistryEntry === false) {
             throw new \InvalidArgumentException('The given object is not a RegistryEntry', 1618181818);
         }
-        $existingObject = $this->getForAccount($object->getAccount(), $object->getNamespace(), $object->getName());
+
+        // for account based entries
+        if ($object->getAccount() !== null) {
+            $existingObject = $this->getForAccount($object->getAccount(), $object->getNamespace(), $object->getName());
+            if ($existingObject !== null) {
+                $existingObject->setValue($object->getValue());
+                $this->save($existingObject);
+                return;
+            }
+        }
+
+        // for global entries
+        $existingObject = $this->get($object->getNamespace(), $object->getName());
         if ($existingObject !== null) {
             $existingObject->setValue($object->getValue());
-            $this->persistenceManager->allowObject($existingObject);
-            $this->update($existingObject);
+            $this->save($existingObject);
             return;
         }
-        $this->persistenceManager->allowObject($object);
-        parent::add($object);
+
+        $this->save($object);
+    }
+
+    protected function save(RegistryEntry $object)
+    {
+        if ($this->persistenceManager->isNewObject($object)) {
+            $this->persistenceManager->allowObject($object);
+            parent::add($object);
+        } else {
+            $this->persistenceManager->allowObject($object);
+            parent::update($object);
+        }
     }
 
     public function update($object): void

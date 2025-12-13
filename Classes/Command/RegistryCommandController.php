@@ -52,10 +52,6 @@ class RegistryCommandController extends CommandController
 
     public function setCommand(string $namespace, string $name, string $value)
     {
-        $newEntry = new RegistryEntry();
-        $newEntry->setNamespace($namespace);
-        $newEntry->setName($name);
-        $newEntry->setValue($value);
-        $this->registry->add($newEntry);
+        $this->registry->set($namespace, $name, $value);
     }
 }
