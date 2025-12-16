@@ -93,11 +93,11 @@ class RegistryEntryRepository extends Repository
             $source = $this->defaults;
         }
 
-        if (isset($source[$namespace][$name])) {
+        if (isset($source[$namespace]['items'][$name]['default'])) {
             $r = new RegistryEntry();
             $r->setName($name)
                 ->setNamespace($namespace)
-                ->setValue($source[$namespace][$name]['default']);
+                ->setValue($source[$namespace]['items'][$name]['default']);
             return $r;
         }
         return null;
