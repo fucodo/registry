@@ -134,6 +134,7 @@ class RegistryEntry
             $this->type = 'null';
             return $this;
         }
+        return $this;
     }
 
     public function getType(): string
